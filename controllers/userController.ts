@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import asyncHandler from 'express-async-handler';
 import User from '../models/userModel.js';
+import { IUser } from '../models/userModel.js';
 import generateToken from '../utils/generateToken.js';
 
 // @desc    Auth user & get token
@@ -9,7 +10,7 @@ import generateToken from '../utils/generateToken.js';
 const authUser = asyncHandler(async (req: Request, res: Response) => {
   const { email, password } = req.body;
 
-  const user = await User.findOne({ email });
+  const user = await User.findOne({ email }) as IUser | null;
 
   if (user && (await user.matchPassword(password))) {
     res.json({
@@ -17,7 +18,7 @@ const authUser = asyncHandler(async (req: Request, res: Response) => {
       name: user.name,
       email: user.email,
       isAdmin: user.role === 'admin',
-      token: generateToken(user._id as string),
+      token: generateToken((user._id as any).toString()),
     });
   } else {
     res.status(401);
@@ -45,7 +46,7 @@ const registerUser = asyncHandler(async (req: Request, res: Response) => {
     password,
     businessName,
     phone,
-  });
+  }) as IUser;
 
   if (user) {
     res.status(201).json({
@@ -53,7 +54,7 @@ const registerUser = asyncHandler(async (req: Request, res: Response) => {
       name: user.name,
       email: user.email,
       isAdmin: user.role === 'admin',
-      token: generateToken(user._id as string),
+      token: generateToken((user._id as any).toString()),
     });
   } else {
     res.status(400);
@@ -65,7 +66,7 @@ const registerUser = asyncHandler(async (req: Request, res: Response) => {
 // @route   GET /api/users/profile
 // @access  Private
 const getUserProfile = asyncHandler(async (req: any, res: Response) => {
-  const user = await User.findById(req.user._id);
+  const user = await User.findById(req.user._id) as IUser | null;
 
   if (user) {
     res.json({

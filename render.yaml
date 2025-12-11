@@ -3,7 +3,7 @@ services:
     name: ave-catering-api
     env: node
     plan: starter
-    buildCommand: pnpm install && pnpm run build
+    buildCommand: pnpm install --no-frozen-lockfile && pnpm run build
     startCommand: pnpm start
     rootDir: ./Backend
     envVars:
